@@ -6,7 +6,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # =============================================
 TOKEN = "8677431523:AAEi6j_XFxuji_EHo-q3sTrAWgpXEH5CfAk"
 
-ADMIN_IDS = []  # آیدی عددی ادمین‌ها رو اینجا بذار
+ADMIN_IDS = [766185418]  # آیدی عددی ادمین‌ها رو اینجا بذار
 
 # =============================================
 # حالت‌های مکالمه
