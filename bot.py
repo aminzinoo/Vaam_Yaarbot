@@ -6,7 +6,24 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 # =============================================
 TOKEN = "8677431523:AAEi6j_XFxuji_EHo-q3sTrAWgpXEH5CfAk"
 
-ADMIN_IDS = [766185418]  # آیدی عددی ادمین‌ها رو اینجا بذار
+ADMIN_IDS = [766185418]  # آیدی عددی ادمین‌ها
+
+# =============================================
+# 💳 سیستم پرداخت
+# =============================================
+# وقتی درگاه زرین‌پال آماده شد:
+# ۱. ZARINPAL_MERCHANT رو پر کن
+# ۲. CALLBACK_URL رو به آدرس سرورت تنظیم کن
+# ۳. تابع verify_payment رو فعال کن (کامنت‌ها رو بردار)
+# ۴. SANDBOX رو False کن برای محیط واقعی
+
+ZARINPAL_MERCHANT = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"  # ← اینجا Merchant ID زرین‌پال
+ZARINPAL_SANDBOX = True   # True=تست | False=واقعی
+CALLBACK_URL = "https://YOUR-DOMAIN.com/payment/callback"  # ← آدرس سرور
+
+# این دیکشنری کاربرانی که پرداخت کردن رو نگه میداره
+# کلید: user_id تلگرام | مقدار: True
+paid_users = {}  # { user_id: True }
 
 # =============================================
 # حالت‌های مکالمه
@@ -716,6 +733,28 @@ async def credit_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         return CREDIT_MENU
 
     elif text == "✅ تأیید پرداخت":
+        user_id = update.message.from_user.id
+
+        # =============================================
+        # 🔒 اینجا تأیید پرداخت انجام میشه
+        # =============================================
+        # فعلاً: دستی است — کاربر خودش تأیید میزنه
+        #
+        # وقتی درگاه زرین‌پال آماده شد:
+        # ۱. Webhook از زرین‌پال callback میگیره
+        # ۲. user_id کاربر به paid_users اضافه میشه
+        # ۳. اینجا چک میکنیم user_id توی paid_users هست یا نه
+        #
+        # کد آماده (فعلاً غیرفعاله، # رو بردار وقتی درگاه آماده شد):
+        # if user_id not in paid_users:
+        #     await update.message.reply_text(
+        #         "❌ پرداخت شما تأیید نشده است!\n\n"
+        #         "لطفاً ابتدا پرداخت را انجام دهید و دوباره تلاش کنید."
+        #     )
+        #     return CREDIT_MENU
+        # =============================================
+
+        paid_users[user_id] = True  # ← این خط رو وقتی Webhook فعال شد حذف کن
         await update.message.reply_text(
             "✅ *پرداخت تأیید شد!*\n\n"
             "🎉 به بخش مشاوره وام‌ـیار خوش آمدید!\n\n"
