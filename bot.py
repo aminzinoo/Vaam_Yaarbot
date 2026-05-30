@@ -1200,13 +1200,34 @@ async def sepah_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return SEPAH_MENU
 
 # =============================================
+# 🏠 home و fallback
+# =============================================
+async def home(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
+    await update.message.reply_text(
+        "🏠 بازگشت به منوی اصلی:",
+        reply_markup=ReplyKeyboardMarkup(main_menu, resize_keyboard=True)
+    )
+    return MENU
+
+async def fallback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "⚠️ متوجه نشدم!\n\n🏠 برای بازگشت به منوی اصلی /start یا /home بزنید.",
+        reply_markup=ReplyKeyboardMarkup(main_menu, resize_keyboard=True)
+    )
+    return MENU
+
+# =============================================
 # اجرای ربات
 # =============================================
 def main():
     app = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        entry_points=[
+            CommandHandler('start', start),
+            CommandHandler('home', home),
+        ],
         states={
             MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, menu_handler)],
             BANK_MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, bank_menu_handler)],
@@ -1237,12 +1258,17 @@ def main():
             ],
             LOAN_SELECT_MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, loan_select_handler)],
         },
-        fallbacks=[CommandHandler('start', start)]
+        fallbacks=[
+            CommandHandler('start', start),
+            CommandHandler('home', home),
+            MessageHandler(filters.TEXT & ~filters.COMMAND, fallback_handler),
+        ]
     )
 
     app.add_handler(conv_handler)
     print("ربات وام‌یار در حال اجراست...")
     app.run_polling()
+
 
 if __name__ == '__main__':
     main()
